@@ -1,0 +1,682 @@
+html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For  -   宝宝</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a0a2e, #0d0630);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            z-index: 10;
+        }
+        
+        header {
+            margin-bottom: 30px;
+            animation: fadeIn 1.5s ease-out;
+        }
+        
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(255, 105, 180, 0.7);
+            color: #ff69b4;
+            background: linear-gradient(45deg, #ff69b4, #ff1493, #ff00cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+        
+        #canvas-container {
+            position: relative;
+            width: 100%;
+            height: 60vh;
+            min-height: 400px;
+            background: rgba(10, 5, 24, 0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(255, 20, 147, 0.2);
+            margin: 20px 0;
+            border: 1px solid rgba(255, 105, 180, 0.3);
+        }
+        
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #fireworks-canvas {
+            z-index: 2;
+        }
+        
+        #hearts-canvas {
+            z-index: 1;
+        }
+        
+        .message-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 3;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            pointer-events: none;
+        }
+        
+        .message-container.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .name-display {
+            font-size: 4.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px #ff1493;
+            color: #ff69b4;
+            background: linear-gradient(45deg, #ff69b4, #ff1493, #ff00cc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            transform: scale(0.8);
+            opacity: 0;
+            animation: nameAppear 1.5s forwards 0.5s;
+        }
+        
+        .love-message {
+            font-size: 2rem;
+            margin-top: 20px;
+            opacity: 0;
+            animation: fadeInUp 1.5s forwards 1.5s;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #ff69b4, #ff1493);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 20, 147, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn.copy-btn {
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+        }
+        
+        .link-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        #share-link {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            font-size: 1rem;
+            margin-top: 15px;
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            font-size: 1rem;
+            opacity: 0.7;
+            max-width: 600px;
+        }
+        
+        .hearts-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .heart {
+            position: absolute;
+            font-size: 1.5rem;
+            color: rgba(255, 105, 180, 0.7);
+            animation: float 8s infinite ease-in-out;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes nameAppear {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 0.7; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .name-display { font-size: 3rem; }
+            .love-message { font-size: 1.5rem; }
+            #canvas-container { height: 50vh; min-height: 300px; }
+        }
+        
+        @media (max-width: 480px) {
+            h1 { font-size: 2rem; }
+            .subtitle { font-size: 1rem; }
+            .name-display { font-size: 2.2rem; }
+            .love-message { font-size: 1.2rem; }
+            .btn { padding: 10px 20px; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hearts-bg" id="hearts-bg"></div>
+    
+    <div class="container">
+        <header>
+            <h1>烟花的绽放</h1>
+            <p class="subtitle">便是我永恒的爱意</p>
+        </header>
+        
+        <div id="canvas-container">
+            <canvas id="hearts-canvas"></canvas>
+            <canvas id="fireworks-canvas"></canvas>
+            
+            <div class="message-container" id="message-container">
+                <div class="name-display" id="name-display">小张</div>
+                <div class="love-message">你知道吗😊世上有许多种快乐，而你便是我的第一种快乐</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" id="replay-btn">
+                <i class="fas fa-redo"></i> 重放烟花
+            </button>
+            <button class="btn copy-btn" id="copy-btn">
+                <i class="fas fa-share-alt"></i> 复制分享链接
+            </button>
+        </div>
+        
+       
+        
+        <p class="instructions">
+   
+        </p>
+    </div>
+    
+    <script>
+        // 生成漂浮爱心背景
+        function createFloatingHearts() {
+            const heartsBg = document.getElementById('hearts-bg');
+            const numHearts = 30;
+            
+            for (let i = 0; i < numHearts; i++) {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.classList.add('heart');
+                
+                // 随机位置
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.top = `${Math.random() * 100}%`;
+                
+                // 随机大小
+                const size = Math.random() * 2 + 1;
+                heart.style.fontSize = `${size}rem`;
+                
+                // 随机动画延迟和持续时间
+                const delay = Math.random() * 15;
+                const duration = Math.random() * 10 + 15;
+                heart.style.animationDelay = `${delay}s`;
+                heart.style.animationDuration = `${duration}s`;
+                
+                heartsBg.appendChild(heart);
+            }
+        }
+        
+        // 烟花粒子系统
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.radius = Math.random() * 2 + 1;
+                this.velocity = {
+                    x: (Math.random() - 0.5) * 8,
+                    y: (Math.random() - 0.5) * 8
+                };
+                this.alpha = 1;
+                this.gravity = 0.05;
+                this.resistance = 0.92;
+                this.shrink = Math.random() * 0.05 + 0.93;
+            }
+            
+            update() {
+                this.velocity.y += this.gravity;
+                this.velocity.x *= this.resistance;
+                this.velocity.y *= this.resistance;
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= 0.005;
+                this.radius *= this.shrink;
+            }
+            
+            draw(ctx) {
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+            }
+            
+            isFinished() {
+                return this.alpha <= 0 || this.radius <= 0.5;
+            }
+        }
+        
+        class Firework {
+            constructor(x, y, targetX, targetY, color) {
+                this.x = x;
+                this.y = y;
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.color = color;
+                this.particles = [];
+                this.velocity = { x: 0, y: 0 };
+                this.acceleration = { x: 0, y: 0.05 };
+                this.distanceToTarget = Math.hypot(targetX - x, targetY - y);
+                this.angle = Math.atan2(targetY - y, targetX - x);
+                this.speed = 2;
+                this.brightness = Math.random() * 50 + 50;
+                this.trail = [];
+                this.trailLength = 5;
+                this.exploded = false;
+            }
+            
+            update() {
+                if (!this.exploded) {
+                    // 移动到目标位置
+                    this.velocity.x = Math.cos(this.angle) * this.speed;
+                    this.velocity.y = Math.sin(this.angle) * this.speed;
+                    
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+                    
+                    // 添加轨迹
+                    this.trail.push({ x: this.x, y: this.y });
+                    if (this.trail.length > this.trailLength) {
+                        this.trail.shift();
+                    }
+                    
+                    // 检查是否到达目标
+                    const distance = Math.hypot(this.targetX - this.x, this.targetY - this.y);
+                    if (distance < 5) {
+                        this.explode();
+                    }
+                } else {
+                    // 更新粒子
+                    for (let i = this.particles.length - 1; i >= 0; i--) {
+                        this.particles[i].update();
+                        if (this.particles[i].isFinished()) {
+                            this.particles.splice(i, 1);
+                        }
+                    }
+                }
+            }
+            
+            explode() {
+                this.exploded = true;
+                const numParticles = Math.floor(Math.random() * 50) + 100;
+                
+                for (let i = 0; i < numParticles; i++) {
+                    this.particles.push(new Particle(this.x, this.y, this.color));
+                }
+            }
+            
+            draw(ctx) {
+                if (!this.exploded) {
+                    // 绘制轨迹
+                    ctx.globalAlpha = 0.5;
+                    for (let i = 0; i < this.trail.length; i++) {
+                        const point = this.trail[i];
+                        const alpha = i / this.trail.length;
+                        ctx.beginPath();
+                        ctx.arc(point.x, point.y, 1 * alpha, 0, Math.PI * 2);
+                        ctx.fillStyle = this.color;
+                        ctx.fill();
+                    }
+                    
+                    // 绘制烟花头
+                    ctx.globalAlpha = 1;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color;
+                    ctx.fill();
+                } else {
+                    // 绘制粒子
+                    for (const particle of this.particles) {
+                        particle.draw(ctx);
+                    }
+                }
+            }
+            
+            isFinished() {
+                return this.exploded && this.particles.length === 0;
+            }
+        }
+        
+        // 烟花控制器
+        class FireworksController {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.fireworks = [];
+                this.animationId = null;
+                this.lastTimestamp = 0;
+                this.fireworkInterval = 300;
+                this.timeSinceLastFirework = 0;
+                this.maxFireworks = 5;
+                this.totalFireworks = 0;
+                
+                this.setCanvasSize();
+                window.addEventListener('resize', this.setCanvasSize.bind(this));
+            }
+            
+            setCanvasSize() {
+                this.canvas.width = this.canvas.offsetWidth;
+                this.canvas.height = this.canvas.offsetHeight;
+            }
+            
+            start() {
+                this.stop();
+                this.fireworks = [];
+                this.totalFireworks = 0;
+                this.animationId = requestAnimationFrame(this.animate.bind(this));
+            }
+            
+            stop() {
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                    this.animationId = null;
+                }
+            }
+            
+            addFirework() {
+                if (this.totalFireworks >= this.maxFireworks) return;
+                
+                const startX = Math.random() * this.canvas.width;
+                const startY = this.canvas.height;
+                const targetX = Math.random() * (this.canvas.width - 100) + 50;
+                const targetY = Math.random() * (this.canvas.height / 2) + 50;
+                
+                const hue = Math.floor(Math.random() * 360);
+                const color = `hsl(${hue}, 100%, 60%)`;
+                
+                this.fireworks.push(new Firework(startX, startY, targetX, targetY, color));
+                this.totalFireworks++;
+            }
+            
+            animate(timestamp) {
+                if (!this.lastTimestamp) this.lastTimestamp = timestamp;
+                const deltaTime = timestamp - this.lastTimestamp;
+                this.lastTimestamp = timestamp;
+                
+                // 清空画布
+                this.ctx.fillStyle = 'rgba(10, 5, 24, 0.1)';
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // 添加新烟花
+                this.timeSinceLastFirework += deltaTime;
+                if (this.timeSinceLastFirework > this.fireworkInterval && this.totalFireworks < this.maxFireworks) {
+                    this.addFirework();
+                    this.timeSinceLastFirework = 0;
+                    this.fireworkInterval = Math.random() * 500 + 300;
+                }
+                
+                // 更新和绘制烟花
+                for (let i = this.fireworks.length - 1; i >= 0; i--) {
+                    this.fireworks[i].update();
+                    this.fireworks[i].draw(this.ctx);
+                    
+                    if (this.fireworks[i].isFinished()) {
+                        this.fireworks.splice(i, 1);
+                    }
+                }
+                
+                // 继续动画
+                this.animationId = requestAnimationFrame(this.animate.bind(this));
+                
+                // 检查是否所有烟花都结束
+                if (this.totalFireworks >= this.maxFireworks && this.fireworks.length === 0) {
+                    setTimeout(() => {
+                        document.getElementById('message-container').classList.add('show');
+                    }, 1000);
+                }
+            }
+        }
+        
+        // 爱心背景
+        class HeartsBackground {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.hearts = [];
+                this.maxHearts = 15;
+                this.animationId = null;
+                
+                this.setCanvasSize();
+                window.addEventListener('resize', this.setCanvasSize.bind(this));
+            }
+            
+            setCanvasSize() {
+                this.canvas.width = this.canvas.offsetWidth;
+                this.canvas.height = this.canvas.offsetHeight;
+                this.hearts = [];
+                this.createHearts();
+            }
+            
+            createHearts() {
+                for (let i = 0; i < this.maxHearts; i++) {
+                    this.hearts.push(this.createHeart());
+                }
+            }
+            
+            createHeart() {
+                const size = Math.random() * 20 + 10;
+                return {
+                    x: Math.random() * this.canvas.width,
+                    y: Math.random() * this.canvas.height,
+                    size: size,
+                    speed: Math.random() * 0.5 + 0.2,
+                    rotation: Math.random() * Math.PI * 2,
+                    rotationSpeed: (Math.random() - 0.5) * 0.05,
+                    color: `hsl(${Math.random() * 360}, 100%, ${Math.random() * 30 + 60}%)`,
+                    alpha: Math.random() * 0.5 + 0.3
+                };
+            }
+            
+            start() {
+                this.stop();
+                this.animationId = requestAnimationFrame(this.animate.bind(this));
+            }
+            
+            stop() {
+                if (this.animationId) {
+                    cancelAnimationFrame(this.animationId);
+                    this.animationId = null;
+                }
+            }
+            
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                for (let i = 0; i < this.hearts.length; i++) {
+                    const heart = this.hearts[i];
+                    
+                    // 更新位置
+                    heart.y -= heart.speed;
+                    heart.rotation += heart.rotationSpeed;
+                    
+                    // 如果超出画布顶部，重新创建
+                    if (heart.y + heart.size < 0) {
+                        this.hearts[i] = this.createHeart();
+                        this.hearts[i].y = this.canvas.height + heart.size;
+                        continue;
+                    }
+                    
+// 绘制爱心
+this.画心(心)；
+                }
+                
+this.animationId=requestAnimationFrame(this.使有生气。绑定(此))；
+            }
+            
+drawHeart(心脏){
+常数{x，y，大小，旋转，颜色，阿尔法}=心脏；
+                
+this.ctx.save()；
+this.ctx.translate(x，y)；
+this.ctx.rotate(旋转)；
+this.ctx.globalAlpha=alpha；
+                
+this.ctx.beginPath()；
+// 绘制爱心形状
+this.ctx.moveTo(0，0-大小/2)；
+this.ctx.bezierCurveTo(
+尺寸/2，0-尺寸，
+尺寸，0-尺寸/3，
+0，尺寸/2
+                );
+this.ctx.bezierCurveTo(
+-尺寸，0-尺寸/3，
+-尺寸/2，0-尺寸，
+0，0-尺寸/2
+                );
+                
+this.ctx.fillStyle=颜色；
+this.ctx.fill()；
+this.ctx.restore()；
+            }
+        }
+        
+// 页面加载完成后初始化
+窗户。addEventListener('DOMContentLoaded'，()=>{
+// 创建背景爱心
+createFloatingHearts()；
+            
+//获取帆布元素
+Const heartsCanvas=document.getElementById('hearts-canvas')；
+Const fireworksCanvas=document.getElementById('fireworks-canvas')；
+            
+// 初始化爱心背景
+Const heartsBg=新心脏背景(heartsCanvas)；
+heartsBg.start()；
+            
+// 初始化烟花控制器
+Const fireworksController=新的FireworksController(fireworksCanvas)；
+            
+// 启动烟花
+setTimeout(()=>{
+fireworksController.start()；
+}, 1000);
+            
+// 重放按钮
+文件。getElementById('replay-btn')。addEventListener('click'，()=>{
+文件。getElementById('message-container')。classList。移除('show')；
+fireworksController.start()；
+            });
+           
+            
+// 初始化分享链接
+Const url=新URL(window.location.href)；
+url.searchParams.set('for'，'小张')；
+文件。getElementById('share-link')。值=url.toString()；
+        });
+</script>
+</body>
+</html>
